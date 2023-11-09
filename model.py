@@ -1,5 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras import backend as K
 
 # Downsampling block (encoder)
 def downsample_block(input_layer, filters, kernel_size, padding='same', activation='relu'):
