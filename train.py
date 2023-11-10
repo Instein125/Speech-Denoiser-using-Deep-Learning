@@ -30,7 +30,7 @@ def get_max_shape(dir):
 
     return (max_x, max_y)
 
-
+# load numpy spectrograms
 def load_array(dir, final_shape):
     # Initialize an empty list to store the loaded spectrograms
     arr = []
