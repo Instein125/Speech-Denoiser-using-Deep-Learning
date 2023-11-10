@@ -37,13 +37,14 @@ class UNET:
                            metrics=[self.iou,])
         
     def train(self, x_train, y_train, batch_size, num_epochs, callbacks):
-        self.model.fit(x_train,
+        history=self.model.fit(x_train,
                        y_train,
                        batch_size=batch_size,
                        epochs=num_epochs,
                        callbacks=callbacks,
                        validation_split=0.2,
                        )
+        return history
         
     def save(self, save_folder):
         self._create_folder_if_it_doesnt_exist(save_folder)
