@@ -61,6 +61,9 @@ def load_array(dir, final_shape):
     # Convert the list to a NumPy array if required
     arr = np.array(arr)
 
+    # reshaping to make it suitable for training
+    arr = arr.reshape(arr.shape[0], arr.shape[1], arr.shape[2], 1 )
+
     return arr
 
 
