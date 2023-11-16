@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras import backend as K
+from tensorflow.keras import backend as k
 import matplotlib.pyplot as plt
 import os
 import pickle
