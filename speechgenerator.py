@@ -24,7 +24,7 @@ class SoundGenerator:
         for spectrogram, min_max_value in zip(spectrograms, min_max_values):
             
             # apply denormalisation
-            denorm_log_spec = self._min_max_normaliser.denormalise(
+            denorm_log_spec = self._min_max_normaliser.denormalize(
                 spectrogram, min_max_value["min"], min_max_value["max"])
             # log spectrogram -> spectrogram
             spec = librosa.db_to_amplitude(denorm_log_spec)
