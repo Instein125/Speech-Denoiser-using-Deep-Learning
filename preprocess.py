@@ -151,16 +151,17 @@ class PreprocessingPipeline:
         mixed_audio = self.mixer.mix_audio(trimmed_clean_audio, trimmed_noise_audio)
 
         log_spec_noisy = self.extractor.extract(mixed_audio)
-        log_spec_clean = self.extractor.extract(trimmed_clean_audio)
+        # log_spec_clean = self.extractor.extract(trimmed_clean_audio)
 
         normalized_spec_noisy = self.normaliser.normalize(log_spec_noisy, np.min(log_spec_noisy), np.max(log_spec_noisy))
-        normalized_spec_clean = self.normaliser.normalize(log_spec_clean, np.min(log_spec_clean), np.max(log_spec_clean))
+        # normalized_spec_clean = self.normaliser.normalize(log_spec_clean, np.min(log_spec_clean), np.max(log_spec_clean))
 
         save_path_noisy = self.saver.save_normalized_spectrogram(normalized_spec_noisy, f'{filename}_spec', False)
-        save_path_clean = self.saver.save_normalized_spectrogram(normalized_spec_clean, f'{filename}_spec', True)
+        # save_path_clean = self.saver.save_normalized_spectrogram(normalized_spec_clean, f'{filename}_spec', True)
 
         self._store_min_max_value(save_path_noisy, log_spec_noisy.min(), log_spec_noisy.max())
-        print(f"Processed Noisy file: {save_path_noisy}, Processed Clean file: {save_path_clean}")
+        # print(f"Processed Noisy file: {save_path_noisy}, Processed Clean file: {save_path_clean}")
+        print(f"Processed Noisy file: {save_path_noisy}")
 
     def _store_min_max_value(self, save_path, min_val, max_val):
         self.min_max_values[save_path] = {
@@ -180,8 +181,8 @@ if __name__ == "__main__":
     OVERLAP_RATIO=0.3
 
     # Defining the paths to the clean audio and noise audio folders
-    clean_audio_dir = 'clean_audio'
-    noise_audio_dir = 'noise_audio'
+    clean_audio_dir = 'D:/Speech data/MS-SNSD/clean_train'
+    noise_audio_dir = 'D:/Speech data/MS-SNSD/noise_train'
 
     # folder for storing spectogram value of noised and clean audio speech
     X_train_spec_dir = 'x_train_noised_speech'
