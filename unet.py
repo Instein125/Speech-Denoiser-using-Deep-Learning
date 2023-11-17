@@ -45,6 +45,16 @@ class UNET:
                        validation_split=0.2,
                        )
         return history
+    
+    def train_generator(self, train_generator, length, batch_size, num_epochs, callbacks):
+        history=self.model.fit_generator(
+            generator = train_generator,
+            steps_per_epoch=length // batch_size,
+                       epochs=num_epochs,
+                       callbacks=callbacks,
+                       validation_split=0.2,
+                       )
+        return history
         
     def save(self, save_folder):
         self._create_folder_if_it_doesnt_exist(save_folder)
