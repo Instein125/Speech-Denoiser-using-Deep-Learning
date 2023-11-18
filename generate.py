@@ -47,6 +47,7 @@ def load_fsdd(spectrograms_path, final_shape):
 
     # reshaping to make it suitable for training
     arr = arr.reshape(arr.shape[0], arr.shape[1], arr.shape[2], 1 )
+    # print(arr.shape)
     return arr, file_paths
 
 
@@ -74,7 +75,7 @@ def save_signals(signals, save_dir, sample_rate=22050):
 if __name__ == "__main__":
     # initialise sound generator
     model = UNET(
-        input_shape=(256, 256, 1),
+        input_shape=(256, 512, 1),
         conv_filters=(64, 128, 256, 512),
         conv_kernels=(3, 3),
     )
@@ -86,7 +87,7 @@ if __name__ == "__main__":
     with open(MIN_MAX_VALUES_PATH, "rb") as f:
         min_max_values = pickle.load(f)
 
-    specs, file_paths = load_fsdd(SPECTROGRAMS_PATH, (256,256))
+    specs, file_paths = load_fsdd(SPECTROGRAMS_PATH, (256,512))
 
     # sample spectrograms + min max values
     sampled_specs, sampled_min_max_values = select_spectrograms(specs,

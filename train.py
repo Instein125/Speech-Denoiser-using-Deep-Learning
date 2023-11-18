@@ -69,7 +69,7 @@ def load_array(dir, final_shape):
 
 def train(x_train, y_train, learning_rate, batch_size, epochs, callbacks):
     model = UNET(
-        input_shape=(256, 256, 1),
+        input_shape=(256, 512, 1),
         conv_filters=(64, 128, 256, 512),
         conv_kernels=(3, 3),
     )
