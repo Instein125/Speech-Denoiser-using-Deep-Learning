@@ -74,8 +74,6 @@ def convert_spectrogram_to_audio( spectrogram, min_val, max_val):
         
         # reshape the log spectrogram
         spectrogram = spectrogram.reshape(spectrogram.shape[0], spectrogram.shape[1],)
-        plot_spect(spectrogram, 'Contructed Audio after Noise removal')
-            
         # apply denormalisation
         denorm_log_spec = denormalize(
             spectrogram, min_val, max_val)
@@ -83,7 +81,7 @@ def convert_spectrogram_to_audio( spectrogram, min_val, max_val):
         spec = librosa.db_to_amplitude(denorm_log_spec)
         # apply Griffin-Lim
         signal = librosa.istft(spec, hop_length=256)
-        return signal
+        return signal, spectrogram
 
 def plot_waveform(y, title="Waveform"):
     # Generate time values for x-axis
@@ -112,7 +110,35 @@ def plot_spect(y, title):
     fig.colorbar(img, ax=ax, format=f'%0.2f')
     st.pyplot(plt)
 
+def resize_spectrogram(original_shape, processed_spectrogram):
+    # Extract the original shape
+    original_rows, original_cols = original_shape
 
+    # Extract the processed shape
+    processed_rows, processed_cols = processed_spectrogram.shape
+
+    # Calculate the row and column differences
+    row_diff = original_rows - processed_rows
+    col_diff = original_cols - processed_cols
+
+    # Pad or crop the processed spectrogram to match the original shape
+    if row_diff > 0:
+        # Pad along the rows
+        pad_width = ((0, row_diff), (0, 0))
+        processed_spectrogram = np.pad(processed_spectrogram, pad_width, mode='constant', constant_values=0)
+    elif row_diff < 0:
+        # Crop along the rows
+        processed_spectrogram = processed_spectrogram[:original_rows, :]
+
+    if col_diff > 0:
+        # Pad along the columns
+        pad_width = ((0, 0), (0, col_diff))
+        processed_spectrogram = np.pad(processed_spectrogram, pad_width, mode='constant', constant_values=0)
+    elif col_diff < 0:
+        # Crop along the columns
+        processed_spectrogram = processed_spectrogram[:, :original_cols]
+
+    return processed_spectrogram
 
 # Function to denoise the audio (replace this with your denoising logic)
 def denoise_audio(input_audio):
@@ -121,16 +147,36 @@ def denoise_audio(input_audio):
 
 # List of predefined audio files
 audio_files = {
-    "Noised Audio 1": "samples/original/noised_speech_1.wav",
-    "Noised Audio 2": "samples/original/noised_speech_2.wav",
-    "Noised Audio 3": "samples/original/noised_speech_3.wav",
-    "Noised Audio 4": "samples/original/noised_speech_4.wav",
+    "Noised Audio 1": "noisy speech/nosied_p237_106.wav",
+    "Noised Audio 2": "noisy speech/nosied_p245_281.wav",
+    "Noised Audio 3": "noisy speech/nosied_p246_051.wav",
+    "Noised Audio 4": "noisy speech/nosied_p246_349.wav",
+    "Noised Audio 5": "noisy speech/nosied_p237_271.wav",
+    "Noised Audio 6": "noisy speech/nosied_p237_279.wav",
+    "Noised Audio 7": "noisy speech/nosied_p241_292.wav",
+    "Noised Audio 8": "noisy speech/nosied_p245_191.wav",
+    "Noised Audio 9": "noisy speech/nosied_p245_289.wav",
+    "Noised Audio 10": "noisy speech/nosied_p241_297.wav",
+    "Noised Audio 11": "noisy speech/nosied_p241_312.wav",
+    "Noised Audio 12": "noisy speech/nosied_p245_188.wav",
+    "Noised Audio 13": "noisy speech/nosied_p260_108.wav",
+    "Noised Audio 14": "noisy speech/nosied_p260_173.wav",
+    "Noised Audio 15": "noisy speech/nosied_p260_357.wav",
     # Add more audio files as needed
 }
 
 # Streamlit app
 def main():
     st.title("Speech Denoising with UNET")
+
+    st.subheader("Overview")
+    # Introduction
+    st.write(
+        "Welcome to the Audio Denoising and Reconstruction App! "
+        "This app showcases results of the Speech Denoiser Project. You can visualize the waveform, spectrogram of the original and recontrusted audio "
+        "and apply a denoising process to reconstruct a cleaner version of the audio. "
+        "The denoising process is done using UNET architecture"
+    )
 
     # Select an audio file from the predefined list
     selected_file = st.selectbox("Select an Audio File", list(audio_files.keys()))
@@ -140,9 +186,19 @@ def main():
 
     # Convert the selected file to numpy array (replace this with actual data loading)
     audio, _ = librosa.load(audio_files[selected_file])
-
-    # Extract spectrogram
     spectrogram= extract(audio)
+    original_shape = spectrogram.shape
+
+    # Display the original waveform if the checkbox is selected
+    if st.checkbox("Show Waveform", key= "noised waveform"):
+        st.header("Noised Speech Waveform")
+        plot_waveform(audio, title="Noised Speech Waveform")
+
+    # Show the Spectrogram
+    if st.checkbox("Show Spectrogram", key='noised spec'):
+        st.header("Noised Speech Spectrogram")
+        plot_spect(spectrogram, "Noised Speech Spectrogram")
+
 
     # Normalizing
     min_val = np.min(spectrogram)
@@ -162,31 +218,24 @@ def main():
 
         # Display the denoised waveform
         st.header("Denoised and Reconstructed Audio")
-        signal = convert_spectrogram_to_audio(denoised_audio[0], min_val, max_val)
+        signal, constructed_spectrogram = convert_spectrogram_to_audio(denoised_audio[0], min_val, max_val)
 
-        # Display the denoised audio
-        # st.audio(signal, format="audio/wav")
+        # reshaping to original shape
+        constructed_spectrogram = resize_spectrogram(original_shape, constructed_spectrogram)
         signal, _ = librosa.effects.trim(signal, top_db=20)
-        plot_waveform(signal, 'Reconstructed Audio Waveform')
+
         sf.write('constructed.wav', signal, 22050)
         st.audio('constructed.wav', format="audio/wav")
 
-            # Button to download the denoised audio
-        if st.button("Download Cleaned Audio"):
-            # Save the denoised audio to a temporary file
-            temp_path = "cleaned_audio.wav"
-            write(temp_path, 22050, signal)
+        
+        st.subheader("Reconstructed Audio Waveform")
+        plot_waveform(signal, 'Reconstructed Audio Waveform')
 
-            # Provide a link to download the file
-            st.markdown(f"[Click here to download cleaned audio]({temp_path})")
+    
+        st.subheader("Recontructed Audio Spectrogram")
+        plot_spect(constructed_spectrogram, 'Contructed Audio after Noise removal')
 
-    # Show the waveform
-    "Waveforms"
-    plot_waveform(audio, title="Noised Speech Waveform")
-
-    # Show spectrogram
-    "Spectrogram"
-    plot_spect(spectrogram, "Noised Speech Spectrogram")
+    
 
 
 if __name__ == "__main__":
