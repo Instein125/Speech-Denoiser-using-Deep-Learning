@@ -1,2 +1,2 @@
 speech-denoiser/
-best_weight.hdf5
+*.hdf5

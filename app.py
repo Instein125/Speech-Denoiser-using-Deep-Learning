@@ -82,6 +82,7 @@ def convert_spectrogram_to_audio( spectrogram, min_val, max_val):
         # apply Griffin-Lim
         signal = librosa.istft(spec, hop_length=256)
         return signal, spectrogram
+        return signal, spectrogram
 
 def plot_waveform(y, title="Waveform"):
     # Generate time values for x-axis
@@ -110,6 +111,35 @@ def plot_spect(y, title):
     fig.colorbar(img, ax=ax, format=f'%0.2f')
     st.pyplot(plt)
 
+def resize_spectrogram(original_shape, processed_spectrogram):
+    # Extract the original shape
+    original_rows, original_cols = original_shape
+
+    # Extract the processed shape
+    processed_rows, processed_cols = processed_spectrogram.shape
+
+    # Calculate the row and column differences
+    row_diff = original_rows - processed_rows
+    col_diff = original_cols - processed_cols
+
+    # Pad or crop the processed spectrogram to match the original shape
+    if row_diff > 0:
+        # Pad along the rows
+        pad_width = ((0, row_diff), (0, 0))
+        processed_spectrogram = np.pad(processed_spectrogram, pad_width, mode='constant', constant_values=0)
+    elif row_diff < 0:
+        # Crop along the rows
+        processed_spectrogram = processed_spectrogram[:original_rows, :]
+
+    if col_diff > 0:
+        # Pad along the columns
+        pad_width = ((0, 0), (0, col_diff))
+        processed_spectrogram = np.pad(processed_spectrogram, pad_width, mode='constant', constant_values=0)
+    elif col_diff < 0:
+        # Crop along the columns
+        processed_spectrogram = processed_spectrogram[:, :original_cols]
+
+    return processed_spectrogram
 def resize_spectrogram(original_shape, processed_spectrogram):
     # Extract the original shape
     original_rows, original_cols = original_shape
@@ -187,6 +217,15 @@ def main():
         "The denoising process is done using UNET architecture"
     )
 
+    st.subheader("Overview")
+    # Introduction
+    st.write(
+        "Welcome to the Audio Denoising and Reconstruction App! "
+        "This app showcases results of the Speech Denoiser Project. You can visualize the waveform, spectrogram of the original and recontrusted audio "
+        "and apply a denoising process to reconstruct a cleaner version of the audio. "
+        "The denoising process is done using UNET architecture"
+    )
+
     # Select an audio file from the predefined list
     selected_file = st.selectbox("Select an Audio File", list(audio_files.keys()))
 
@@ -196,6 +235,18 @@ def main():
     # Convert the selected file to numpy array (replace this with actual data loading)
     audio, _ = librosa.load(audio_files[selected_file])
     spectrogram= extract(audio)
+    original_shape = spectrogram.shape
+
+    # Display the original waveform if the checkbox is selected
+    if st.checkbox("Show Waveform", key= "noised waveform"):
+        st.header("Noised Speech Waveform")
+        plot_waveform(audio, title="Noised Speech Waveform")
+
+    # Show the Spectrogram
+    if st.checkbox("Show Spectrogram", key='noised spec'):
+        st.header("Noised Speech Spectrogram")
+        plot_spect(spectrogram, "Noised Speech Spectrogram")
+
     original_shape = spectrogram.shape
 
     # Display the original waveform if the checkbox is selected
@@ -231,14 +282,27 @@ def main():
         # Display the denoised waveform
         st.header("Denoised and Reconstructed Audio")
         signal, constructed_spectrogram = convert_spectrogram_to_audio(denoised_audio[0], min_val, max_val)
+        signal, constructed_spectrogram = convert_spectrogram_to_audio(denoised_audio[0], min_val, max_val)
 
+        # reshaping to original shape
+        constructed_spectrogram = resize_spectrogram(original_shape, constructed_spectrogram)
         # reshaping to original shape
         constructed_spectrogram = resize_spectrogram(original_shape, constructed_spectrogram)
         signal, _ = librosa.effects.trim(signal, top_db=20)
 
+
         sf.write('constructed.wav', signal, 22050)
         st.audio('constructed.wav', format="audio/wav")
 
+        
+        st.subheader("Reconstructed Audio Waveform")
+        plot_waveform(signal, 'Reconstructed Audio Waveform')
+
+    
+        st.subheader("Recontructed Audio Spectrogram")
+        plot_spect(constructed_spectrogram, 'Contructed Audio after Noise removal')
+
+    
         
         st.subheader("Reconstructed Audio Waveform")
         plot_waveform(signal, 'Reconstructed Audio Waveform')
