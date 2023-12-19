@@ -143,7 +143,7 @@ class UNET:
         b1 = layers.BatchNormalization()(conv1)
         r1 = layers.ReLU()(b1)
         pool = layers.MaxPooling2D(pool_size=(2, 2))(r1)
-        print("Downsample block shape is: " ,conv1.shape)
+        # print("Downsample block shape is: " ,conv1.shape)
         return conv1, pool
 
     # Upsampling block
@@ -153,7 +153,7 @@ class UNET:
         merge = layers.concatenate([up, skip_connection], axis=3)
         conv = layers.Conv2D(filters, 3, activation=activation, padding=padding)(merge)
         conv = layers.Conv2D(filters, 3, activation=activation, padding=padding)(conv)
-        print("upsample block shape is: " ,conv.shape)
+        # print("upsample block shape is: " ,conv.shape)
         return conv
     
 
