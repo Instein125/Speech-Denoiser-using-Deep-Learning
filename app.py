@@ -238,26 +238,17 @@ def main():
     original_shape = spectrogram.shape
 
     # Display the original waveform if the checkbox is selected
-    if st.checkbox("Show Waveform", key= "noised waveform"):
+    if st.checkbox("Show Waveform", key= "noised waveform1"):
         st.header("Noised Speech Waveform")
         plot_waveform(audio, title="Noised Speech Waveform")
 
     # Show the Spectrogram
-    if st.checkbox("Show Spectrogram", key='noised spec'):
+    if st.checkbox("Show Spectrogram", key='noised spec1'):
         st.header("Noised Speech Spectrogram")
         plot_spect(spectrogram, "Noised Speech Spectrogram")
 
     original_shape = spectrogram.shape
 
-    # Display the original waveform if the checkbox is selected
-    if st.checkbox("Show Waveform", key= "noised waveform"):
-        st.header("Noised Speech Waveform")
-        plot_waveform(audio, title="Noised Speech Waveform")
-
-    # Show the Spectrogram
-    if st.checkbox("Show Spectrogram", key='noised spec'):
-        st.header("Noised Speech Spectrogram")
-        plot_spect(spectrogram, "Noised Speech Spectrogram")
 
 
     # Normalizing
